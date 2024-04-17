@@ -54,18 +54,80 @@ def new_data_structs():
     Inicializa las estructuras de datos del modelo. Las crea de
     manera vacía para posteriormente almacenar la información.
     """
+    catalog = {'info': None,
+               'jobs': None,
+               'multilocations': None,
+               'skills': None,
+               'req7': None}
+    
+    catalog['jobs'] = lt.newList("ARRAY_LIST")
+
+    ##revisar numero elementos 
+    catalog['req7'] = mp.newMap(203562,
+                                   maptype='CHAINING',
+                                   loadfactor=4)
+    
+    catalog['skills'] = mp.newMap(577166, #tamaño igual al size de jobs
+                                  maptype='CHAINING',
+                                  loadfactor=4)
+    
     #TODO: Inicializar las estructuras de datos
     pass
 
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_job(data_structs, data):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
+    lt.addLast(data_structs["jobs"],data)
+    
+
+    update_req7(data_structs["req7"], data)
+
     pass
+
+def add_skill(datastructs, skill):
+    update_skills(datastructs["skills"], skill)
+
+def update_skills(map, data):
+    id = data["id"]
+
+    if mp.contains(map, id):
+        value = me.getValue(mp.get(map,id))
+        lt.addLast(value, data)
+    else:
+        lista_skills = lt.newList("ARRAY_LIST")
+        lt.addLast(lista_skills, data)
+        mp.put(map, id, lista_skills)
+
+def update_req7(map, data):
+    pais = data["country_code"]
+
+    if mp.contains(map, pais):
+        value = me.getValue(mp.get(map, pais)) #obtener arbol del mapa
+        update_arbol7(value, data)
+    else:
+        new_arbol = nuevo_arbol7()
+        update_arbol7(new_arbol, data)
+        mp.put(map, pais, new_arbol)
+
+def nuevo_arbol7():
+    return om.newMap() #definir funcion de comparación y tipo de arbol
+
+def update_arbol7(new_arbol, data):
+    anho = data["date"] #cambiar para filtrar el año
+
+    if om.contains(new_arbol, anho):
+        value= me.getValue(om.get(new_arbol, anho))
+        lt.addLast(value, data)
+    else:
+        lista_jobs = lt.newList("ARRAY_LIST")
+        lt.addLast(lista_jobs, data)
+        om.put(new_arbol, anho, lista_jobs)
+
 
 
 # Funciones para creacion de datos
