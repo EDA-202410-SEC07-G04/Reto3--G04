@@ -48,13 +48,12 @@ def load_data(control):
     """
     # TODO: Realizar la carga de datos
     load_jobs(control)
-    
 
 def load_jobs(control):
     jobsfile = cf.data_dir + 'large-jobs.csv'
     input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
     for job in input_file:
-        model.add_data(control, job)
+        model.add_job(control, job)
     return control
 
 
@@ -78,6 +77,8 @@ def get_data(control, id):
     #TODO: Llamar la función del modelo para obtener un dato
     pass
 
+def sizu(control):
+    return model.sizu(control)
 
 def req_1(control):
     """

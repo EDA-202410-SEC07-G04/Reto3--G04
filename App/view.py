@@ -27,6 +27,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
 from DISClib.ADT import map as mp
+from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 assert cf
 #from tabulate import tabulate
@@ -68,11 +69,10 @@ def load_data(control):
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    data = controller.load_data(control)
-    """
-    tama = om.size(data["countries"])
-    print(tama)
-    """
+    controller.load_data(control)
+    #tama = om.size(data["countries"])
+    mbappe = controller.sizu(control)
+    print(mbappe)
 
 def print_data(control, id):
     """
@@ -165,6 +165,7 @@ if __name__ == "__main__":
             load_data(control)
         elif int(inputs) == 2:
             print_req_1(control)
+            controller.sizu(control)
 
         elif int(inputs) == 3:
             print_req_2(control)

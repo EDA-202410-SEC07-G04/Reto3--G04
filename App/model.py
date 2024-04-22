@@ -55,6 +55,23 @@ def new_data_structs():
     Inicializa las estructuras de datos del modelo. Las crea de
     manera vacía para posteriormente almacenar la información.
     """
+    catalog = {'info': None,
+               'jobs': None,
+               'multilocations': None,
+               'skills': None,
+               'req7': None}
+    
+    catalog['jobs'] = lt.newList("ARRAY_LIST")
+
+    ##revisar numero elementos 
+    catalog["req7"] = mp.newMap(203562,
+                                   maptype='CHAINING',
+                                   loadfactor=4)
+    
+    catalog['skills'] = mp.newMap(577166, #tamaño igual al size de jobs
+                                  maptype='CHAINING',
+                                  loadfactor=4)
+    
     #TODO: Inicializar las estructuras de datos
     catalog = {"jobs": None,
                "countries": None}
@@ -62,25 +79,71 @@ def new_data_structs():
     catalog['jobs'] = lt.newList("ARRAY_LIST")
 
     catalog["countries"] = om.newMap(omaptype="BST",
-                                      cmpfunction=compareDates)
+                                      cmpfunction=compareNames)
 
     return catalog 
 
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_job(data_structs, data):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
-    lt.addLast(data_structs["jobs"], data)
+    lt.addLast(data_structs["jobs"],data)
+    
+
+    #update_req7(data_structs["req7"], data)
     updateCountries(data_structs["countries"], data)
 
     return data_structs
 
+
+def add_skill(datastructs, skill):
+    update_skills(datastructs["skills"], skill)
+
+def update_skills(map, data):
+    id = data["id"]
+
+    if mp.contains(map, id):
+        value = me.getValue(mp.get(map,id))
+        lt.addLast(value, data)
+    else:
+        lista_skills = lt.newList("ARRAY_LIST")
+        lt.addLast(lista_skills, data)
+        mp.put(map, id, lista_skills)
+
+def update_req7(map, data):
+    pais = data["country_code"]
+
+    if mp.contains(map, pais):
+        value = me.getValue(mp.get(map, pais)) #obtener arbol del mapa
+        update_arbol7(value, data)
+    else:
+        new_arbol = nuevo_arbol7()
+        update_arbol7(new_arbol, data)
+        mp.put(map, pais, new_arbol)
+
+def nuevo_arbol7():
+    return om.newMap() #definir funcion de comparación y tipo de arbol
+
+def update_arbol7(new_arbol, data):
+    anho = data["date"] #cambiar para filtrar el año
+
+    if om.contains(new_arbol, anho):
+        value= me.getValue(om.get(new_arbol, anho))
+        lt.addLast(value, data)
+    else:
+        lista_jobs = lt.newList("ARRAY_LIST")
+        lt.addLast(lista_jobs, data)
+        om.put(new_arbol, anho, lista_jobs)
+
+
+
+
 def updateCountries(mapa, job):
-    companieName = job["company_name"]
+    companieName = job["country_code"]
     entry = om.get(mapa, companieName)
     if entry is None:
         namentry = newDataEntry(job)
@@ -94,13 +157,14 @@ def addNameEntry(namentry, job):
     lst = namentry["lstjobs"]
     #print(namentry)
     lt.addLast(lst, job)
-    offenseIndex = namentry['offenseIndex']
-    #print(offenseIndex)
-    offentry = mp.get(offenseIndex, job['company_name'])
+    companyName = namentry['companyName']
+    #print(companyName)
+    fecha = str(dt.strptime(job['published_at'], '%Y-%m-%dT%H:%M:%S.%fZ'))
+    offentry = mp.get(companyName, fecha)
     if (offentry is None):
-        entry = newNameEntry(job['company_name'], job)
+        entry = newNameEntry(fecha, job)
         lt.addLast(entry['lstjobs'], job)
-        mp.put(offenseIndex, job['company_name'], entry)
+        mp.put(companyName, fecha, entry)
     else:
         entry = me.getValue(offentry)
         lt.addLast(entry['lstjobs'], job)
@@ -108,11 +172,11 @@ def addNameEntry(namentry, job):
     
 def newDataEntry(job):
     #print(job)
-    entry = {'offenseIndex': None, 'lstjobs': None}
-    entry['offenseIndex'] = mp.newMap(numelements=6321,
+    entry = {'companyName': None, 'lstjobs': None}
+    entry['companyName'] = mp.newMap(numelements=30,
                                      maptype='PROBING',
-                                     cmpfunction=compareNames)
-    entry['lstjobs'] = lt.newList('SINGLE_LINKED', compareDates)
+                                     cmpfunction=compareDates)
+    entry['lstjobs'] = lt.newList('SINGLE_LINKED', compareNames)
     lt.addLast(entry["lstjobs"], job)
     return entry
 
@@ -129,9 +193,10 @@ def newNameEntry(offensegrp, crime):
     return ofentry
 
 
-
-
 # Funciones para creacion de datos
+
+def sizu(data_struct):
+    return om.size(data_struct["countries"])
 
 def new_data(id, info):
     """
@@ -236,6 +301,7 @@ def compareDates(date1, date2):
     """
     Compara dos fechas
     """
+    date2 = me.getKey(date2)
     if (date1 == date2):
         return 0
     elif (date1 > date2):
@@ -246,10 +312,10 @@ def compareDates(date1, date2):
 # Funciones de ordenamiento
 
 def compareNames(name1, name2):
-    name = me.getKey(name2)
-    if (name1 == name):
+    #name = me.getKey(name2)
+    if (name1 == name2):
         return 0
-    elif (name1 > name):
+    elif (name1 > name2):
         return 1
     else:
         return -1
