@@ -72,7 +72,13 @@ def load_data(control):
     controller.load_data(control)
     #tama = om.size(data["countries"])
     mbappe = controller.sizu(control)
+    cr7 = controller.tamano_total(control)
+    messi = controller.fechas_canti(control)
+    haaland = controller.pruebas(control)
+    print(cr7)
     print(mbappe)
+    print(messi)
+    print(haaland)
 
 def print_data(control, id):
     """
@@ -86,7 +92,36 @@ def print_req_1(control):
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    pass
+    fecha_inicial =  str(input("Que fecha minima le interesa?: "))
+    fecha_final = str(input("Que fecha maxima le interesa?: "))
+    ofertas_rango_de_tiempo, final = controller.req_1(control, fecha_inicial, fecha_final)
+    print("Total de ofertas publicadas durante el rango de fechas: " + str(ofertas_rango_de_tiempo))
+    size = ofertas_rango_de_tiempo    
+    sample = size
+    if size == 1:
+        job = lt.getElement(final, 0)
+        print("Los", size, "Trabajos ordenados por fecha (mas reciente a menos reciente) son:")
+        print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+                ' Nombre de la compañia: ' + job['company_name'] + ' Nivel de XP: ' + job['experience_level'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+                job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' Tipo de ubicacion de trabajo: ' + job['workplace_type'] + 
+                ' Contratan Ucranianos?: ' + job['open_to_hire_ukrainians'])
+    elif size <= sample*2:
+        print("Los", size, "Trabajos ordenados por fecha (mas reciente a menos reciente) son:")
+        for job in lt.iterator(final):
+            print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+                ' Nombre de la compañia: ' + job['company_name'] + ' Nivel de XP: ' + job['experience_level'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+                job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' Tipo de ubicacion de trabajo: ' + job['workplace_type'] + 
+                ' Contratan Ucranianos?: ' + job['open_to_hire_ukrainians'])
+    else:
+        print("Los", sample, "Trabajos ordenados por fecha (mas reciente a menos reciente) son:")
+        i = 1
+        while i <= sample:
+            job = lt.getElement(final, i)
+            print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+                ' Nombre de la compañia: ' + job['company_name'] + ' Nivel de XP: ' + job['experience_level'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+                job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' Tipo de ubicacion de trabajo: ' + job['workplace_type'] + 
+                ' Contratan Ucranianos?: ' + job['open_to_hire_ukrainians'])
+            i += 1
 
 
 def print_req_2(control):
@@ -102,7 +137,10 @@ def print_req_3(control):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    pass
+    n_ofertas = input("cantidad de ofertas a mostrar: ")
+    xp = str(input("Nivel de xp: "))
+    pais = str(input("Codigo pais: "))
+    final = controller.req_3(control, n_ofertas, xp, pais.lower())
 
 
 def print_req_4(control):

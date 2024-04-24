@@ -59,7 +59,9 @@ def new_data_structs():
                'jobs': None,
                'multilocations': None,
                'skills': None,
-               'req7': None}
+               'req7': None,
+               "countries": None, 
+               "dates": None}
     
     catalog['jobs'] = lt.newList("ARRAY_LIST")
 
@@ -71,14 +73,11 @@ def new_data_structs():
     catalog['skills'] = mp.newMap(577166, #tamaño igual al size de jobs
                                   maptype='CHAINING',
                                   loadfactor=4)
-    
-    #TODO: Inicializar las estructuras de datos
-    catalog = {"jobs": None,
-               "countries": None}
-    
-    catalog['jobs'] = lt.newList("ARRAY_LIST")
 
     catalog["countries"] = om.newMap(omaptype="BST",
+                                      cmpfunction=compareXp2)
+
+    catalog["dates"] = om.newMap(omaptype="BST",
                                       cmpfunction=compareNames)
 
     return catalog 
@@ -92,10 +91,9 @@ def add_job(data_structs, data):
     """
     #TODO: Crear la función para agregar elementos a una lista
     lt.addLast(data_structs["jobs"],data)
-    
-
     #update_req7(data_structs["req7"], data)
     updateCountries(data_structs["countries"], data)
+    updateDates(data_structs["dates"], data)
 
     return data_structs
 
@@ -143,11 +141,11 @@ def update_arbol7(new_arbol, data):
 
 
 def updateCountries(mapa, job):
-    companieName = job["country_code"]
-    entry = om.get(mapa, companieName)
+    countryName = str(job["country_code"].lower())
+    entry = om.get(mapa, countryName)
     if entry is None:
         namentry = newDataEntry(job)
-        om.put(mapa, companieName, namentry)
+        om.put(mapa, countryName, namentry)
     else:
         namentry = me.getValue(entry)
     addNameEntry(namentry, job)
@@ -157,30 +155,56 @@ def addNameEntry(namentry, job):
     lst = namentry["lstjobs"]
     #print(namentry)
     lt.addLast(lst, job)
-    companyName = namentry['companyName']
-    #print(companyName)
-    fecha = str(dt.strptime(job['published_at'], '%Y-%m-%dT%H:%M:%S.%fZ'))
-    offentry = mp.get(companyName, fecha)
+    name = namentry['name']
+    #print(name)
+    xp = str(job['experience_level'].lower())
+    offentry = mp.get(name, xp)
     if (offentry is None):
-        entry = newNameEntry(fecha, job)
+        entry = newNameEntry(xp, job)
         lt.addLast(entry['lstjobs'], job)
-        mp.put(companyName, fecha, entry)
+        mp.put(name, xp, entry)
     else:
         entry = me.getValue(offentry)
         lt.addLast(entry['lstjobs'], job)
     return namentry
-    
+"""
+def addDateEntry(namentry, job):  
+    lst = namentry["lstjobs"]
+    #print(namentry)
+    lt.addLast(lst, job)
+    companyName = namentry['name']
+    #print(companyName)
+    nome = job["company_name"]
+    offentry = mp.get(companyName, nome)
+    if (offentry is None):
+        entry = newNameEntry2(nome, job)
+        lt.addLast(entry['lstjobs'], job)
+        mp.put(companyName, nome, entry)
+    else:
+        entry = me.getValue(offentry)
+        lt.addLast(entry['lstjobs'], job)
+    return namentry
+"""
 def newDataEntry(job):
     #print(job)
-    entry = {'companyName': None, 'lstjobs': None}
-    entry['companyName'] = mp.newMap(numelements=30,
+    entry = {'name': None, 'lstjobs': None}
+    entry['name'] = mp.newMap(numelements=30,
                                      maptype='PROBING',
-                                     cmpfunction=compareDates)
+                                     cmpfunction=compareXp)
     entry['lstjobs'] = lt.newList('SINGLE_LINKED', compareNames)
     lt.addLast(entry["lstjobs"], job)
     return entry
-
-
+"""
+def newDataEntry2(job):
+    #print(job)
+    entry = {'name': None, 'lstjobs': None}
+    entry['name'] = mp.newMap(numelements=30,
+                                     maptype='PROBING',
+                                     cmpfunction=compareNames2)
+    entry['lstjobs'] = lt.newList('SINGLE_LINKED', compareDates2)
+    lt.addLast(entry["lstjobs"], job)
+    return entry
+"""
 def newNameEntry(offensegrp, crime):
     """
     Crea una entrada en el indice por tipo de crimen, es decir en
@@ -191,12 +215,77 @@ def newNameEntry(offensegrp, crime):
     ofentry["lstjobs"] = lt.newList("SINGLE_LINKED", compareNames)
     lt.addLast(ofentry["lstjobs"], crime)
     return ofentry
+"""
+def newNameEntry2(offensegrp, crime):
+    ofentry = {"job": None, "lstjobs": None}
+    ofentry["job"] = offensegrp
+    ofentry["lstjobs"] = lt.newList("SINGLE_LINKED", compareDates2)
+    lt.addLast(ofentry["lstjobs"], crime)
+    return ofentry
+"""
+def updateDates(mapa, job):
+    date = dt.strptime(job['published_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    fecha_final = str(date.strftime("%Y-%m-%d"))
+    entry = om.get(mapa, fecha_final)
+    if entry is None:
+        namentry = newDataEntry2(job)
+        om.put(mapa, fecha_final, namentry)
+    else:
+        namentry = me.getValue(entry)
+    addDateEntry(namentry, job)
+    return mapa
 
+def addDateEntry(namentry, job):  
+    lst = namentry["lstjobs"]
+    #print(namentry)
+    lt.addLast(lst, job)
+    companyName = namentry['name']
+    #print(companyName)
+    nome = job["company_name"]
+    offentry = mp.get(companyName, nome)
+    if (offentry is None):
+        entry = newNameEntry2(nome, job)
+        lt.addLast(entry['lstjobs'], job)
+        mp.put(companyName, nome, entry)
+    else:
+        entry = me.getValue(offentry)
+        lt.addLast(entry['lstjobs'], job)
+    return namentry
+    
+def newDataEntry2(job):
+    #print(job)
+    entry = {'name': None, 'lstjobs': None}
+    entry['name'] = mp.newMap(numelements=30,
+                                     maptype='PROBING',
+                                     cmpfunction=compareNames2)
+    entry['lstjobs'] = lt.newList('SINGLE_LINKED', compareDates2)
+    lt.addLast(entry["lstjobs"], job)
+    return entry
+
+def newNameEntry2(offensegrp, crime):
+    """
+    Crea una entrada en el indice por tipo de crimen, es decir en
+    la tabla de hash, que se encuentra en cada nodo del arbol.
+    """
+    ofentry = {"job": None, "lstjobs": None}
+    ofentry["job"] = offensegrp
+    ofentry["lstjobs"] = lt.newList("SINGLE_LINKED", compareDates2)
+    lt.addLast(ofentry["lstjobs"], crime)
+    return ofentry
 
 # Funciones para creacion de datos
 
 def sizu(data_struct):
     return om.size(data_struct["countries"])
+
+def fechas_canti(data_struct):
+    return om.size(data_struct["dates"])
+
+def tamano_total(data_struct):
+    return lt.size(data_struct["jobs"])
+
+def pruebas(data_struct):
+    return om.keySet(data_struct["dates"])
 
 def new_data(id, info):
     """
@@ -224,12 +313,21 @@ def data_size(data_structs):
     pass
 
 
-def req_1(data_structs):
+def req_1(data_structs, fecha_inicial, fecha_final):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    pass
+    final = lt.newList("ARRAY_LIST")
+    lst = om.values(data_structs["dates"], fecha_inicial, fecha_final)
+    ofertas_rango_de_tiempo = 0
+    for i in lt.iterator(lst):
+        ofertas_rango_de_tiempo += lt.size(i["lstjobs"])
+        for x in lt.iterator(i["lstjobs"]):
+            lt.addFirst(final, x)
+    
+    return ofertas_rango_de_tiempo, final
+
 
 
 def req_2(data_structs):
@@ -240,12 +338,22 @@ def req_2(data_structs):
     pass
 
 
-def req_3(data_structs):
+def req_3(data_structs, n_ofertas, pais, xp):
     """
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    pass
+    final = lt.newList("ARRAY_LIST")
+    pai = om.get(data_structs["countries"], pais)
+    print(pai)
+    if pai["key"] is not None:
+        mapa = me.getValue(pai)["countryName"]
+        fifa = mp.get(mapa, xp)
+        if fifa is not None:
+            var1 = me.getValue(numoffenses)["lstoffenses"]
+            print(var1)
+
+    
 
 
 def req_4(data_structs):
@@ -312,10 +420,50 @@ def compareDates(date1, date2):
 # Funciones de ordenamiento
 
 def compareNames(name1, name2):
-    #name = me.getKey(name2)
+    #name2 = me.getKey(name2)
     if (name1 == name2):
         return 0
     elif (name1 > name2):
+        return 1
+    else:
+        return -1
+
+def compareDates2(date1, date2):
+    """
+    Compara dos fechas
+    """
+    #date2 = me.getKey(date2)
+    if (date1 == date2):
+        return 0
+    elif (date1 > date2):
+        return 1
+    else:
+        return -1
+
+# Funciones de ordenamiento
+
+def compareNames2(name1, name2):
+    name2 = me.getKey(name2)
+    if (name1 == name2):
+        return 0
+    elif (name1 > name2):
+        return 1
+    else:
+        return -1
+
+def compareXp(xp1, xp2):
+    xp2 = me.getKey(xp2)
+    if (xp1 == xp2):
+        return 0
+    elif (xp1 > xp2):
+        return 1
+    else:
+        return -1
+
+def compareXp2(xp1, xp2):
+    if (xp1 == xp2):
+        return 0
+    elif (xp1 > xp2):
         return 1
     else:
         return -1
