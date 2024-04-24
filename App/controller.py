@@ -36,17 +36,26 @@ def new_controller():
     Crea una instancia del modelo
     """
     #TODO: Llamar la función del modelo que crea las estructuras de datos
-    pass
+    control = model.new_data_structs()
+    return control
 
 
 # Funciones para la carga de datos
 
-def load_data(control, filename):
+def load_data(control):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
-    pass
+    load_jobs(control)
+
+def load_jobs(control):
+    jobsfile = cf.data_dir + 'large-jobs.csv'
+    input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
+    for job in input_file:
+        model.add_job(control, job)
+    return control
+
 
 
 # Funciones de ordenamiento
@@ -68,13 +77,25 @@ def get_data(control, id):
     #TODO: Llamar la función del modelo para obtener un dato
     pass
 
+def sizu(control):
+    return model.sizu(control)
 
-def req_1(control):
+def fechas_canti(control):
+    return model.fechas_canti(control)
+
+def tamano_total(control):
+    return model.tamano_total(control)
+
+def pruebas(control):
+    return model.pruebas(control)
+
+def req_1(control, fecha_inicial, fecha_final):
     """
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    pass
+    ofertas_rango_de_tiempo, final = model.req_1(control, fecha_inicial, fecha_final)
+    return ofertas_rango_de_tiempo, final
 
 
 def req_2(control):
@@ -85,12 +106,12 @@ def req_2(control):
     pass
 
 
-def req_3(control):
+def req_3(control, n_ofertas, pais, xp):
     """
     Retorna el resultado del requerimiento 3
     """
     # TODO: Modificar el requerimiento 3
-    pass
+    final = model.req_3(control, n_ofertas, pais, xp)
 
 
 def req_4(control):
