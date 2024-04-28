@@ -137,10 +137,11 @@ def print_req_3(control):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    n_ofertas = input("cantidad de ofertas a mostrar: ")
+    n_ofertas = int(input("cantidad de ofertas a mostrar: "))
     xp = str(input("Nivel de xp: "))
     pais = str(input("Codigo pais: "))
-    final = controller.req_3(control, n_ofertas, xp, pais.lower())
+    final = controller.req_3(control, n_ofertas, pais.lower(), xp)
+    print(final)
 
 
 def print_req_4(control):
@@ -148,7 +149,11 @@ def print_req_4(control):
         Función que imprime la solución del Requerimiento 4 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 4
-    pass
+    num_ofertas = int(input("cantidad de ofertas a mostrar: "))
+    ubi = str(input("Tipo de ubicacion: "))
+    ciudad = str(input("CIUDAD: "))
+    final = controller.req_4(control, num_ofertas, ciudad, ubi)
+    print(final)
 
 
 def print_req_5(control):
@@ -164,7 +169,14 @@ def print_req_6(control):
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    n_ciu = int(input("cantidad de ciudades a consultar: "))
+    fecha_inicial =  str(input("Que fecha minima le interesa?: "))
+    fecha_final = str(input("Que fecha maxima le interesa?: "))
+    sal_min =  int(input("Que salario minimo le interesa?: "))
+    sal_max = int(input("Que salario maximo le interesa?: "))
+    
+    final = controller.req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max)
+    print(final)
 
 
 def print_req_7(control):
@@ -180,7 +192,9 @@ def print_req_8(control):
         Función que imprime la solución del Requerimiento 8 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 8
-    pass
+    nom_estru = str(input("estrucutra (): "))
+    final = controller.req_8(control, nom_estru)
+    print(final)
 
 
 # Se crea el controlador asociado a la vista

@@ -40,6 +40,7 @@ from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 from datetime import datetime as dt
+#import folium
 assert cf
 
 """
@@ -74,11 +75,23 @@ def new_data_structs():
                                   maptype='CHAINING',
                                   loadfactor=4)
 
+    catalog['paises'] = mp.newMap(577166, #tamaño igual al size de jobs
+                                  maptype='CHAINING',
+                                  loadfactor=4)
+
     catalog["countries"] = om.newMap(omaptype="BST",
                                       cmpfunction=compareXp2)
 
     catalog["dates"] = om.newMap(omaptype="BST",
                                       cmpfunction=compareNames)
+    #workplace_type
+    catalog["cities"] = om.newMap(omaptype="BST",
+                                      cmpfunction=compareUbi)
+
+    catalog["types"] = om.newMap(omaptype="BST",
+                                      cmpfunction=compareUbi)
+
+
 
     return catalog 
 
@@ -94,9 +107,18 @@ def add_job(data_structs, data):
     #update_req7(data_structs["req7"], data)
     updateCountries(data_structs["countries"], data)
     updateDates(data_structs["dates"], data)
-
+    updateCities(data_structs["cities"], data)
+    
     return data_structs
 
+def add_job2(data_structs, data):
+    """
+    Función para agregar nuevos elementos a la lista
+    """
+    #TODO: Crear la función para agregar elementos a una lista
+    updateTypes(data_structs["types"], data)
+
+    return data_structs
 
 def add_skill(datastructs, skill):
     update_skills(datastructs["skills"], skill)
@@ -141,7 +163,7 @@ def update_arbol7(new_arbol, data):
 
 
 def updateCountries(mapa, job):
-    countryName = str(job["country_code"].lower())
+    countryName = job["country_code"].lower()
     entry = om.get(mapa, countryName)
     if entry is None:
         namentry = newDataEntry(job)
@@ -241,7 +263,7 @@ def addDateEntry(namentry, job):
     lt.addLast(lst, job)
     companyName = namentry['name']
     #print(companyName)
-    nome = job["company_name"]
+    nome = job["id"]
     offentry = mp.get(companyName, nome)
     if (offentry is None):
         entry = newNameEntry2(nome, job)
@@ -263,13 +285,116 @@ def newDataEntry2(job):
     return entry
 
 def newNameEntry2(offensegrp, crime):
+    ofentry = {"job": None, "lstjobs": None}
+    ofentry["job"] = offensegrp
+    ofentry["lstjobs"] = lt.newList("SINGLE_LINKED", compareDates2)
+    lt.addLast(ofentry["lstjobs"], crime)
+    return ofentry
+
+def updateCities(mapa, job):
+    ciuu = str(job["city"].lower())
+    entry = om.get(mapa, ciuu)
+    if entry is None:
+        namentry = newDataEntry3(job)
+        om.put(mapa, ciuu, namentry)
+    else:
+        namentry = me.getValue(entry)
+    addDateEntry2(namentry, job)
+    return mapa
+
+def addDateEntry2(namentry, job):  
+    lst = namentry["lstjobs"]
+    #print(namentry)
+    lt.addLast(lst, job)
+    companyName = namentry['name']
+    #print(companyName)
+    nome = str(job["workplace_type"].lower())
+    offentry = mp.get(companyName, nome)
+    if (offentry is None):
+        entry = newNameEntry3(nome, job)
+        lt.addLast(entry['lstjobs'], job)
+        mp.put(companyName, nome, entry)
+    else:
+        entry = me.getValue(offentry)
+        lt.addLast(entry['lstjobs'], job)
+    return namentry
+    
+def newDataEntry3(job):
+    #print(job)
+    entry = {'name': None, 'lstjobs': None}
+    entry['name'] = mp.newMap(numelements=30,
+                                     maptype='PROBING',
+                                     cmpfunction=compareCities)
+    entry['lstjobs'] = lt.newList('SINGLE_LINKED', compareUbi)
+    lt.addLast(entry["lstjobs"], job)
+    return entry
+
+def newNameEntry3(offensegrp, crime):
     """
     Crea una entrada en el indice por tipo de crimen, es decir en
     la tabla de hash, que se encuentra en cada nodo del arbol.
     """
     ofentry = {"job": None, "lstjobs": None}
     ofentry["job"] = offensegrp
-    ofentry["lstjobs"] = lt.newList("SINGLE_LINKED", compareDates2)
+    ofentry["lstjobs"] = lt.newList("SINGLE_LINKED", compareUbi)
+    lt.addLast(ofentry["lstjobs"], crime)
+    return ofentry
+
+def updateTypes(mapa, job):
+    c1 = (job["salary_from"])
+    c2 = (job["salary_to"])
+    if job["salary_from"] == "" or job["salary_from"] == " " or job["salary_from"] == None:
+        c1 = int(0)
+    if job["salary_to"] == "" or job["salary_to"] == " " or job["salary_to"] == None:
+        c2 = int(0)
+    else: 
+        c1 = int(job["salary_from"])
+        c2 = int(job["salary_to"])
+    prom = (c1 + c2)/2
+    entry = om.get(mapa, prom)
+    if entry is None:
+        namentry = newDataEntry4(job)
+        om.put(mapa, prom, namentry)
+    else:
+        namentry = me.getValue(entry)
+    addDateEntry3(namentry, job)
+    return mapa
+
+def addDateEntry3(namentry, job):  
+    lst = namentry["lstjobs"]
+    #print(namentry)
+    lt.addLast(lst, job)
+    companyName = namentry['name']
+    #print(companyName)
+    nome = str(job["id"])
+    offentry = mp.get(companyName, nome)
+    if (offentry is None):
+        entry = newNameEntry4(nome, job)
+        lt.addLast(entry['lstjobs'], job)
+        mp.put(companyName, nome, entry)
+    else:
+        entry = me.getValue(offentry)
+        lt.addLast(entry['lstjobs'], job)
+    return namentry
+    
+def newDataEntry4(job):
+    #print(job)
+    entry = {'name': None, 'lstjobs': None}
+    entry['name'] = mp.newMap(numelements=30,
+                                     maptype='PROBING',
+                                     cmpfunction=compareCities)
+    entry['lstjobs'] = lt.newList('SINGLE_LINKED', compareUbi)
+    lt.addLast(entry["lstjobs"], job)
+    return entry
+
+def newNameEntry4(offensegrp, crime):
+    """
+    Crea una entrada en el indice por tipo de crimen, es decir en
+    la tabla de hash, que se encuentra en cada nodo del arbol.
+    """
+    ofentry = {"job": None, "lstjobs": None}
+    ofentry["job"] = offensegrp
+    ofentry["lstjobs"] = lt.newList("SINGLE_LINKED", compareUbi)
     lt.addLast(ofentry["lstjobs"], crime)
     return ofentry
 
@@ -285,7 +410,9 @@ def tamano_total(data_struct):
     return lt.size(data_struct["jobs"])
 
 def pruebas(data_struct):
-    return om.keySet(data_struct["dates"])
+    var1 = om.values(data_struct["countries"], "co", "co")
+    for i in lt.iterator(var1):
+        print(i)
 
 def new_data(id, info):
     """
@@ -338,30 +465,75 @@ def req_2(data_structs):
     pass
 
 
-def req_3(data_structs, n_ofertas, pais, xp):
+def req_3(data_structs, num_ofertas, pais, xp):
     """
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
     final = lt.newList("ARRAY_LIST")
-    pai = om.get(data_structs["countries"], pais)
-    print(pai)
+    pai = om.get(data_structs["countries"], str(pais))
+    #print(pai)
     if pai["key"] is not None:
-        mapa = me.getValue(pai)["countryName"]
+        mapa = me.getValue(pai)["name"]
         fifa = mp.get(mapa, xp)
         if fifa is not None:
-            var1 = me.getValue(numoffenses)["lstoffenses"]
-            print(var1)
+            var1 = me.getValue(fifa)["lstjobs"]
+            for i in lt.iterator(var1):
+                lt.addLast(final, i)
+
+    if lt.size(final) >= 2:
+        sortiao = merg.sort(final, sort_r3)
+    elif lt.size(final) <= 1:
+        sortiao = final 
+    elif lt.isEmpty(final):
+        print("Ningun resultado encontrado")
+        sys.exit(0)
+
+    if num_ofertas > lt.size(sortiao):
+        num_ofertas = lt.size(sortiao)
+    elif num_ofertas <= lt.size(sortiao):
+        num_ofertas = num_ofertas 
+    
+    sublista = lt.subList(sortiao, 1, num_ofertas)
+
+    return sublista
 
     
 
 
-def req_4(data_structs):
+def req_4(data_structs, num_ofertas, ciudad, ubi):
     """
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
-    pass
+    final = lt.newList("ARRAY_LIST")
+    ciu = om.get(data_structs["cities"], str(ciudad))
+    #print(ciu)
+    if ciu["key"] is not None:
+        mapa = me.getValue(ciu)["name"]
+        fifa = mp.get(mapa, ubi)
+        if fifa is not None:
+            var1 = me.getValue(fifa)["lstjobs"]
+            for i in lt.iterator(var1):
+                lt.addLast(final, i)
+
+    if lt.size(final) >= 2:
+        sortiao = merg.sort(final, sort_r3)
+    elif lt.size(final) <= 1:
+        sortiao = final 
+    elif lt.isEmpty(final):
+        print("Ningun resultado encontrado")
+        sys.exit(0)
+
+    if num_ofertas > lt.size(sortiao):
+        num_ofertas = lt.size(sortiao)
+    elif num_ofertas <= lt.size(sortiao):
+        num_ofertas = num_ofertas 
+    
+    sublista = lt.subList(sortiao, 1, num_ofertas)
+
+    return sublista
+    
 
 
 def req_5(data_structs):
@@ -372,12 +544,33 @@ def req_5(data_structs):
     pass
 
 
-def req_6(data_structs):
+def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     """
     Función que soluciona el requerimiento 6
     """
     # TODO: Realizar el requerimiento 6
+    final = lt.newList("ARRAY_LIST")
+    lst = om.values(data_structs["dates"], fecha_inicial, fecha_final)
+    ofertas_rango_de_tiempo = 0
+    for i in lt.iterator(lst):
+        ofertas_rango_de_tiempo += lt.size(i["lstjobs"])
+        for x in lt.iterator(i["lstjobs"]):
+            ide = x["id"]
+            lt.addFirst(final, x)
+
+    final2 = lt.newList("ARRAY_LIST")
+    lst2 = om.values(data_structs["types"], sal_min, sal_max)
+    for i in lt.iterator(lst2):
+        for x in lt.iterator(i["lstjobs"]):
+            if x["id"] == ide:
+                lt.addFirst(final, x)
+
+    var1 = req62(final, final2)
+    r1 = lt.size(final2)
+
+def req62(lt1, lt2):
     pass
+
 
 
 def req_7(data_structs):
@@ -388,12 +581,27 @@ def req_7(data_structs):
     pass
 
 
-def req_8(data_structs):
+def req_8(data_structs, mapa, nom_estru, parent_loc=None):
     """
     Función que soluciona el requerimiento 8
     """
     # TODO: Realizar el requerimiento 8
-    pass
+    root = om.minKey(data_structs[nom_estru])
+    if root is not None:
+        info = root["lstjobs"]
+        for i in lt.iterator(info):
+            longi = i["longitude"]
+            lati= i["latitude"]
+
+        loca = (lati, longi)
+        folium.Marker(location=loca, popup=str(info).add_to(mapa))
+
+        if parent_loc is not None:
+            folium.Polyline(locations=[parent_loc, loca], color="blue").add_to(mapa)
+
+        hijos = 32
+
+
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
@@ -460,10 +668,28 @@ def compareXp(xp1, xp2):
     else:
         return -1
 
+def compareCities(c1, c2):
+    c2 = me.getKey(c2)
+    if (c1 == c2):
+        return 0
+    elif (c1 > c2):
+        return 1
+    else:
+        return -1
+
 def compareXp2(xp1, xp2):
     if (xp1 == xp2):
         return 0
     elif (xp1 > xp2):
+        return 1
+    else:
+        return -1
+
+def compareUbi(ubi1, ubi2):
+    #name2 = me.getKey(name2)
+    if (ubi1 == ubi2):
+        return 0
+    elif (ubi1 > ubi2):
         return 1
     else:
         return -1
@@ -481,6 +707,20 @@ def sort_criteria(data_1, data_2):
     #TODO: Crear función comparadora para ordenar
     pass
 
+def sort_r3(oferta1, oferta2):
+    date1 = dt.strptime(oferta1['published_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    date2 = dt.strptime(oferta2['published_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    name1 = oferta1['country_code']
+    name2 = oferta2['country_code']
+    if date1 > date2:
+        return True
+    elif date1 == date2:
+        if name1 < name2:
+            return True
+        else:
+            return False
+    else:
+        return False
 
 def sort(data_structs):
     """
