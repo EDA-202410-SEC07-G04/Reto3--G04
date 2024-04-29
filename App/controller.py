@@ -48,6 +48,8 @@ def load_data(control):
     """
     # TODO: Realizar la carga de datos
     load_jobs(control)
+    load_types(control)
+    load_habilidades(control)
 
 def load_jobs(control):
     jobsfile = cf.data_dir + 'large-jobs.csv'
@@ -56,7 +58,19 @@ def load_jobs(control):
         model.add_job(control, job)
     return control
 
+def load_types(control):
+    jobsfile = cf.data_dir + 'large-employments_types.csv'
+    input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
+    for job in input_file:
+        model.add_job2(control, job)
+    return control
 
+def load_habilidades(control):
+    jobsfile = cf.data_dir + 'large-skills.csv'
+    input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
+    for job in input_file:
+        model.add_job3(control, job)
+    return control
 
 # Funciones de ordenamiento
 
@@ -112,14 +126,16 @@ def req_3(control, n_ofertas, pais, xp):
     """
     # TODO: Modificar el requerimiento 3
     final = model.req_3(control, n_ofertas, pais, xp)
+    return final
 
 
-def req_4(control):
+def req_4(control, num_ofertas, ciudad, ubi):
     """
     Retorna el resultado del requerimiento 4
     """
     # TODO: Modificar el requerimiento 4
-    pass
+    final = model.req_4(control, num_ofertas, ciudad, ubi)
+    return final
 
 
 def req_5(control):
@@ -129,12 +145,13 @@ def req_5(control):
     # TODO: Modificar el requerimiento 5
     pass
 
-def req_6(control):
+def req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     """
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    pass
+    r1, r2, r3, r4 = model.req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max)
+    return r1, r2, r3, r4
 
 
 def req_7(control):
@@ -145,12 +162,13 @@ def req_7(control):
     pass
 
 
-def req_8(control):
+def req_8(control, nom_estru):
     """
     Retorna el resultado del requerimiento 8
     """
     # TODO: Modificar el requerimiento 8
-    pass
+    mapa = folium.Map(location=[0,0], zoom_start=5)
+    final = model.req_8(control, mapa, nom_estru)
 
 
 # Funciones para medir tiempos de ejecucion
