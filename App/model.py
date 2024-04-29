@@ -91,6 +91,8 @@ def new_data_structs():
     catalog["types"] = om.newMap(omaptype="BST",
                                       cmpfunction=compareUbi)
 
+    catalog["habilidades"] = lt.newList("ARRAY_LIST")
+
 
 
     return catalog 
@@ -117,6 +119,15 @@ def add_job2(data_structs, data):
     """
     #TODO: Crear la función para agregar elementos a una lista
     updateTypes(data_structs["types"], data)
+
+    return data_structs
+
+def add_job3(data_structs, data):
+    """
+    Función para agregar nuevos elementos a la lista
+    """
+    #TODO: Crear la función para agregar elementos a una lista
+    lt.addLast(data_structs["habilidades"], data)
 
     return data_structs
 
@@ -344,9 +355,9 @@ def updateTypes(mapa, job):
     c1 = (job["salary_from"])
     c2 = (job["salary_to"])
     if job["salary_from"] == "" or job["salary_from"] == " " or job["salary_from"] == None:
-        c1 = int(0)
+        c1 = int(1)
     if job["salary_to"] == "" or job["salary_to"] == " " or job["salary_to"] == None:
-        c2 = int(0)
+        c2 = int(1)
     else: 
         c1 = int(job["salary_from"])
         c2 = int(job["salary_to"])
@@ -562,15 +573,110 @@ def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     lst2 = om.values(data_structs["types"], sal_min, sal_max)
     for i in lt.iterator(lst2):
         for x in lt.iterator(i["lstjobs"]):
-            if x["id"] == ide:
-                lt.addFirst(final, x)
+            lt.addFirst(final2, x)
 
-    var1 = req62(final, final2)
+    
+    e1 = req63(final)
+    r2 = lt.size(e1)
+    sortiao = lt.newList("ARRAY_LIST")
+    if lt.size(e1) >= 2:
+        sortiao = merg.sort(e1, sort_alfa)
+    elif lt.size(e1) <= 1:
+        sortiao = e1 
+    elif lt.isEmpty(e1):
+        print("Ningun resultado encontrado")
+        sys.exit(0)
+
+    if n_ciu > lt.size(sortiao):
+        num_ofertas = lt.size(sortiao)
+    elif n_ciu <= lt.size(sortiao):
+        num_ofertas = n_ciu 
+    
+    r3 = lt.subList(sortiao, 1, num_ofertas)
+    repe = req61(final)
+    var1 = req62(final, final2, repe, data_structs["habilidades"])
+    r4 = lt.newList("ARRAY_LIST")
+    if lt.size(var1) >= 2:
+        r4 = merg.sort(var1, sort_r6)
+    elif lt.size(var1) <= 1:
+        r4 = var1 
+    elif lt.isEmpty(var1):
+        print("Ningun resultado encontrado")
+        sys.exit(0)
+
     r1 = lt.size(final2)
+    
+    return r1, r2, r3, r4
 
-def req62(lt1, lt2):
-    pass
 
+def req61(lt1):
+    ciu = {}
+    for a in lt.iterator(lt1):
+        nome = a["city"]
+        ciu[nome] = ciu.get(nome, 0) + 1
+
+    repe = max(ciu, key=ciu.get)
+    return repe
+    
+def req62(lt1, lt2, repe, lt3):
+    ofertas_ciudad = lt.newList("ARRAY_LIST")
+    for i in lt.iterator(lt1):
+        if i['city'] == repe:
+            lt.addLast(ofertas_ciudad, i)
+
+    salmin_por_id = {}
+    for q in lt.iterator(lt2):
+        salmin_por_id[q['id']] = q['salary_to']
+
+    habi_por_id = {}
+    for k in lt.iterator(lt3):
+        id_oferta = k["id"]
+        if id_oferta not in habi_por_id:
+            habi_por_id[id_oferta] = []
+        habi_por_id[id_oferta].append(k["name"])
+
+    
+    
+    finalissima = lt.newList("ARRAY_LIST")
+    for of in lt.iterator(ofertas_ciudad):
+        habilidad = habi_por_id.get(of['id'], [])
+        salario_min = salmin_por_id.get(of['id'], None)
+        """
+        if salario_min == "" or salario_min == " " or salario_min == None:
+            salario_min = int(0)
+        else:
+            salario_min = int(salario_min)
+        """
+
+        if salario_min is not None:
+            lt.addLast(finalissima,{
+                "fecha_publi": of["published_at"],
+                "title": of["title"],
+                'compania': of["company_name"],
+                "xp": of["experience_level"],
+                'pais': of["country_code"],
+                "city": repe,
+                "company_size": of["company_size"],
+                "workplace_type": of["workplace_type"],
+                'oferta_minima': int(salario_min),
+                "habilidad": habilidad,
+                "id": of["id"]
+            })
+
+
+    return finalissima
+
+
+def req63(lst):
+    cr7 = lt.newList("ARRAY_LIST")
+
+    for i in lt.iterator(lst):
+        if lt.isPresent(cr7, i["city"]) == 0:
+            lt.addLast(cr7, i["city"])
+        else:
+            batman = 0
+    
+    return cr7
 
 
 def req_7(data_structs):
@@ -719,6 +825,29 @@ def sort_r3(oferta1, oferta2):
             return True
         else:
             return False
+    else:
+        return False
+
+def sort_r6(oferta1, oferta2):
+    date1 = dt.strptime(oferta1['fecha_publi'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    date2 = dt.strptime(oferta2['fecha_publi'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    name1 = oferta1['oferta_minima']
+    name2 = oferta2['oferta_minima']
+    if date1 > date2:
+        return True
+    elif date1 == date2:
+        if name1 < name2:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+def sort_alfa(oferta1, oferta2):
+    date1 = oferta1
+    date2 = oferta2
+    if date1 > date2:
+        return True
     else:
         return False
 

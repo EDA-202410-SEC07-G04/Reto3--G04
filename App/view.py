@@ -175,8 +175,45 @@ def print_req_6(control):
     sal_min =  int(input("Que salario minimo le interesa?: "))
     sal_max = int(input("Que salario maximo le interesa?: "))
     
-    final = controller.req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max)
-    print(final)
+    r1, r2, r3, r4 = controller.req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max)
+    print("Total de ofertas publicadas durante el rango de fechas y salario: " + str(r1))
+    print(" ")
+    print("Numero total de ciudades que cumplen con las condiciones: " + str(r2))
+    print(" ")
+    print("Cantidad de ciudades deseada: ")
+    for i in lt.iterator(r3):
+        print(i)
+    print(" ")
+    if lt.size(r4) > 10:
+        r4 = lt.subList(r4, 1,10)
+    size = lt.size(r4)    
+    sample = size
+    if size == 1:
+        job = lt.getElement(r4, 0)
+        print("Los", size, "Trabajos ordenados por fecha (mas reciente a menos reciente) son:")
+        print('Fecha de publicacion: ' + str(job["fecha_publi"]) + ' Titulo: ' + job['title'] +  
+                ' Nombre de la compañia: ' + job['compania'] + ' Nivel de XP: ' + job['xp'] + " Pais: " + job["pais"] + " Ciudad: " + job["city"] + " Tamaño de la empresa: " + 
+                str(job["company_size"]) + ' Tipo de ubicacion de trabajo: ' + job['workplace_type'] + ' Oferta minima: ' + str(job['oferta_minima']) + 
+                ' Habilidad: ' + str(job['habilidad'])  + ' ID: ' + job['id'])
+    elif size <= sample*2:
+        print("Los", size, "Trabajos ordenados por fecha (mas reciente a menos reciente) son:")
+        for job in lt.iterator(r4):
+            print('Fecha de publicacion: ' + str(job["fecha_publi"]) + ' Titulo: ' + job['title'] +  
+                ' Nombre de la compañia: ' + job['compania'] + ' Nivel de XP: ' + job['xp'] + " Pais: " + job["pais"] + " Ciudad: " + job["city"] + " Tamaño de la empresa: " + 
+                str(job["company_size"]) + ' Tipo de ubicacion de trabajo: ' + job['workplace_type'] + ' Oferta minima: ' + str(job['oferta_minima']) + 
+                ' Habilidad: ' + str(job['habilidad'])  + ' ID: ' + job['id'])
+    else:
+        print("Los", sample, "Trabajos ordenados por fecha (mas reciente a menos reciente) son:")
+        i = 1
+        while i <= sample:
+            job = lt.getElement(r4, i)
+            print('Fecha de publicacion: ' + str(job["fecha_publi"]) + ' Titulo: ' + job['title'] +  
+                ' Nombre de la compañia: ' + job['compania'] + ' Nivel de XP: ' + job['xp'] + " Pais: " + job["pais"] + " Ciudad: " + job["city"] + " Tamaño de la empresa: " + 
+                str(job["company_size"]) + ' Tipo de ubicacion de trabajo: ' + job['workplace_type'] + ' Oferta minima: ' + str(job['oferta_minima']) + 
+                ' Habilidad: ' + str(job['habilidad'])  + ' ID: ' + job['id'])
+            i += 1
+    
+    
 
 
 def print_req_7(control):
