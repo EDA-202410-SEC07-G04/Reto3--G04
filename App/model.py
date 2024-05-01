@@ -34,6 +34,7 @@ from DISClib.ADT import minpq as mpq
 from DISClib.ADT import indexminpq as impq
 from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
+from DISClib.DataStructures import rbtnode as nodoRBT
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Sorting import insertionsort as ins
 from DISClib.Algorithms.Sorting import selectionsort as se
@@ -42,6 +43,7 @@ from DISClib.Algorithms.Sorting import quicksort as quk
 from datetime import datetime as dt
 #import folium
 assert cf
+import sys
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
@@ -67,15 +69,15 @@ def new_data_structs():
     catalog['jobs'] = lt.newList("ARRAY_LIST")
 
     ##revisar numero elementos 
-    catalog["req7"] = mp.newMap(203562,
+    catalog["req7"] = mp.newMap(203562, ###numero paises
                                    maptype='CHAINING',
                                    loadfactor=4)
     
-    catalog['skills'] = mp.newMap(577166, #tamaño igual al size de jobs
+    catalog['skills'] = mp.newMap(203562, #tamaño igual al size de jobs
                                   maptype='CHAINING',
                                   loadfactor=4)
 
-    catalog['paises'] = mp.newMap(577166, #tamaño igual al size de jobs
+    catalog['paises'] = mp.newMap(89, #tamaño igual al size de jobs
                                   maptype='CHAINING',
                                   loadfactor=4)
 
@@ -100,13 +102,49 @@ def new_data_structs():
 
 # Funciones para agregar informacion al modelo
 
+#tabulate
+def get_jobs_sublist(data_structs):
+
+    ofertas = data_structs["jobs"]
+    lista1 = lt.newList("ARRAY_LIST")
+    lista0 = lt.newList("ARRAY_LIST")
+    sublista1=lt.subList(ofertas,1,3)
+    sublista2= lt.subList(ofertas,lt.size(ofertas)-2,3)
+    for cada_elem in lt.iterator(sublista1):
+       
+       dict0 = {}
+       dict0["title"] = cada_elem["title"]
+       dict0["published_at"] = cada_elem["published_at"]
+       dict0["company_name"] = cada_elem["company_name"]
+       dict0["experience_level"] = cada_elem["experience_level"]
+       dict0["country_code"] = cada_elem["country_code"]
+       dict0["city"] = cada_elem["city"]
+       lt.addLast(lista0,dict0)
+    for elem in lt.iterator(sublista2):
+       
+       dict1 = {}
+       dict1["title"] = elem["title"]
+       dict1["published_at"] = elem["published_at"]
+       dict1["company_name"] = elem["company_name"]
+       dict1["experience_level"] = elem["experience_level"]
+       dict1["country_code"] = elem["country_code"]
+       dict1["city"] = elem["city"]
+       lt.addLast(lista1, dict1)
+       
+   
+       
+    return lista1, lista0
+
+
+
+
 def add_job(data_structs, data):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
     lt.addLast(data_structs["jobs"],data)
-    #update_req7(data_structs["req7"], data)
+    update_req7(data_structs["req7"], data)
     updateCountries(data_structs["countries"], data)
     updateDates(data_structs["dates"], data)
     updateCities(data_structs["cities"], data)
@@ -136,7 +174,6 @@ def add_skill(datastructs, skill):
 
 def update_skills(map, data):
     id = data["id"]
-
     if mp.contains(map, id):
         value = me.getValue(mp.get(map,id))
         lt.addLast(value, data)
@@ -146,7 +183,7 @@ def update_skills(map, data):
         mp.put(map, id, lista_skills)
 
 def update_req7(map, data):
-    pais = data["country_code"]
+    pais = (data["country_code"])
 
     if mp.contains(map, pais):
         value = me.getValue(mp.get(map, pais)) #obtener arbol del mapa
@@ -157,10 +194,14 @@ def update_req7(map, data):
         mp.put(map, pais, new_arbol)
 
 def nuevo_arbol7():
-    return om.newMap() #definir funcion de comparación y tipo de arbol
+    return om.newMap(omaptype="RBT",
+                     cmpfunction=compareDates2) #definir funcion de comparación y tipo de arbol
 
 def update_arbol7(new_arbol, data):
-    anho = data["date"] #cambiar para filtrar el año
+    #anho = data["date"] #cambiar para filtrar el año
+    fecha_str = data["published_at"]
+    anho = fecha_str[:4]
+    #anho = str(dt.strptime(fecha_str, "%Y"))
 
     if om.contains(new_arbol, anho):
         value= me.getValue(om.get(new_arbol, anho))
@@ -679,11 +720,129 @@ def req63(lst):
     return cr7
 
 
-def req_7(data_structs):
+def req_7(data_structs,anho, pais, propiedad):
     """
     Función que soluciona el requerimiento 7
     """
     # TODO: Realizar el requerimiento 7
+    parametro_anho= str(dt.strptime(anho, "%Y"))
+    anio = parametro_anho[:4]
+    #anho = str(dt.strptime(anio, "%Y"))
+    
+    #filtrar por pais
+    print(mp.size(data_structs["req7"]))
+    print(anho, pais, propiedad )
+    tupla = mp.get(data_structs["req7"], pais) #retorna el arbol del pais elegido
+    arbol_pais_elegido = me.getValue(tupla)
+    #print(arbol_pais_elegido) ##NONE
+
+    num_anhos = om.size(arbol_pais_elegido)
+    print(num_anhos)
+
+    #Array list con ofertas segun anho y pais
+    nodo = om.get(arbol_pais_elegido, anio)
+    lista_ofertas = nodoRBT.getValue(nodo)
+    print(lt.size(lista_ofertas))
+    print(lista_ofertas)
+
+
+    
+    
+
+
+    dicc = {}
+    contador = 0
+    final = []
+    if propiedad == "experticia":
+        dicc["senior"] = 0
+        dicc["mid"] = 0
+        dicc["junior"] = 0
+        for i in lt.iterator(lista_ofertas):
+            xp = i["experience_level"]
+            print(xp)
+
+            if xp == "senior":
+                dicc["senior"] +=1
+            elif xp == "mid":
+                dicc["mid"] +=1
+            elif xp == "junior":
+                dicc["junior"] +=1
+
+        #print (final)
+
+
+    elif propiedad == "ubicacion":
+        filtro_ciudades = []
+        bas = []
+        for i in lt.iterator(lista_ofertas):
+            
+            ciudad = i["city"]
+            #print(ciudad)
+            if ciudad in filtro_ciudades:
+                bas.append(ciudad)
+            else:
+                filtro_ciudades.append(ciudad)
+        print(filtro_ciudades)
+
+        for ciudad in filtro_ciudades:
+            dicc[ciudad] = 0 #aqui es cero
+
+
+        for i in lt.iterator(lista_ofertas):
+            city = i["city"]
+            #print(city)
+
+            if city in dicc:
+                dicc[city] += 1
+
+
+                
+
+
+    elif propiedad == "habilidad":
+
+        for i in lt.iterator(lista_ofertas):
+            lista_basura = []
+            lista_ides = []
+            #idd = i["id"]
+            if i["id"] not in lista_ides:
+                lista_ides.append(i["id"])
+            else:
+                lista_basura.append(i["id"])
+
+            #print(lista_ides) ##Todos los ides
+    
+    
+            for id in lista_ides:
+                #filtro mapa skills
+                map_skills = data_structs["skills"]
+                #print(map_skills)
+
+                value = me.getValue(mp.get(map_skills,id))
+                print(value)
+
+                tupla = mp.get(map_skills, id)
+                #print (tupla)
+                prop = me.getValue(tupla) #Lista TAD con todos los datos de 1 ID
+                #print (prop)
+
+
+                num_ofertas = lt.size(prop)
+                print(num_ofertas) #numero de ofertas que tiene ese ID
+
+                if id in dicc:
+                    dicc
+                else:
+                    dicc[id] = num_ofertas
+
+
+                
+
+
+    ofertas_anho = lt.size(lista_ofertas) #CAMBIAR
+    ofertas_grafico = final
+
+    return dicc, ofertas_anho, ofertas_grafico
     pass
 
 

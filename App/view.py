@@ -32,6 +32,8 @@ from DISClib.DataStructures import mapentry as me
 assert cf
 #from tabulate import tabulate
 import traceback
+from tabulate import tabulate
+from matplotlib import pyplot as plt
 
 """
 La vista se encarga de la interacción con el usuario
@@ -74,11 +76,16 @@ def load_data(control):
     mbappe = controller.sizu(control)
     cr7 = controller.tamano_total(control)
     messi = controller.fechas_canti(control)
-    haaland = controller.pruebas(control)
+    #haaland = controller.pruebas(control)
     print(cr7)
     print(mbappe)
     print(messi)
-    print(haaland)
+    #print(haaland)
+
+    lista = controller.get_jobs_sublist(control)
+    print(lista)
+    print(tabulate(list(lt.iterator(lista[0]))+list(lt.iterator(lista[1])), headers="keys", tablefmt="grid"))
+
 
 def print_data(control, id):
     """
@@ -221,7 +228,66 @@ def print_req_7(control):
         Función que imprime la solución del Requerimiento 7 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 7
-    pass
+    pais = (str(input("Cuál es el país de su interes ")))
+    anho = str(input("Digame el año que le interesa(XXXX): "))
+    propiedad = str(input("Que propiedad de conteo le interesa: "))
+
+    dicc, ofertas_anho, ofertas_grafico = controller.req_7(control, anho, pais, propiedad)
+    print(dicc)
+    #print(dicc.values())
+
+    valores = dicc.values()
+    minimo = min(valores)
+    maxi = max(valores)
+
+    print("            ")
+    print("Numero total de ofertas que cumplen con las condiciones (año): " + str(ofertas_anho))
+    print("Numero de ofertas utlizadas en el gráfico: " + str(len(ofertas_grafico)))
+    print("El valor minimo es: " + str(minimo))
+    print("El valor maximo es: " + str(maxi))
+
+
+
+    propiedades = list(dicc.keys())
+    conteo = list(dicc.values())
+    plt.bar(propiedades, conteo, color='skyblue')
+    # Agregar etiquetas y título
+    plt.xlabel('Propiedad')
+    plt.ylabel('Número de Ofertas Laborales')
+    plt.title('Distribución de Ofertas Laborales por Propiedad')
+    plt.xticks(rotation=45, ha='right')
+    plt.show()
+
+
+    size = lt.size(ofertas_grafico)    
+    sample = size
+    if size == 1:
+        job = ofertas_grafico[0]
+        print("Las", size, "ciudades ordenadas por cantidad de ofertas son: ")
+        print("            ")
+        print('ciudad: ' + job["ciudad"] + ' Pais: ' + job['pais'] +  ' Ofertas en la ciudad: ' + str(job['total_ofertas']) +
+            " salario promedio: " + str(job["salario_promedio"]) + ' empresas con al menos una oferta: ' + str(job['cant_empresas']) + 
+            ' empresa con mas ofertas en esa ciudad: ' + job['empresa_mas_ofertas'] + ' conteo: ' + str(job['cantidad_ofertas_empresa_mas']) + 
+            ' mejor oferta en la ciudad: ' + str(job['mejor_oferta']) + ' peor oferta en la ciudad: ' + str(job['peor_oferta']))
+    elif size <= sample*2:
+        print("Las", size, "ciudades ordenadas por cantidad de ofertas son: ")
+        for job in ofertas_grafico:
+            print("            ")
+            print('ciudad: ' + job["ciudad"] + ' Pais: ' + job['pais'] +  ' Ofertas en la ciudad: ' + str(job['total_ofertas']) +
+            " salario promedio: " + str(job["salario_promedio"]) + ' empresas con al menos una oferta: ' + str(job['cant_empresas']) + 
+            ' empresa con mas ofertas en esa ciudad: ' + job['empresa_mas_ofertas'] + ' conteo: ' + str(job['cantidad_ofertas_empresa_mas']) + 
+            ' mejor oferta en la ciudad: ' + str(job['mejor_oferta']) + ' peor oferta en la ciudad: ' + str(job['peor_oferta']))
+    else:
+        print("Las", sample, "ciudades ordenadas por cantidad de ofertas son: ")
+        i = 1
+        while i <= sample:
+            job = ofertas_grafico[i]
+            print("            ")
+            print('ciudad: ' + job["ciudad"] + ' Pais: ' + job['pais'] +  ' Ofertas en la ciudad: ' + str(job['total_ofertas']) +
+            " salario promedio: " + str(job["salario_promedio"]) + ' empresas con al menos una oferta: ' + str(job['cant_empresas']) + 
+            ' empresa con mas ofertas en esa ciudad: ' + job['empresa_mas_ofertas'] + ' conteo: ' + str(job['cantidad_ofertas_empresa_mas']) + 
+            ' mejor oferta en la ciudad: ' + str(job['mejor_oferta']) + ' peor oferta en la ciudad: ' + str(job['peor_oferta']))
+            i += 1
 
 
 def print_req_8(control):
