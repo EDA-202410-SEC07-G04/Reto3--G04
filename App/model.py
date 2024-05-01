@@ -734,7 +734,6 @@ def req_7(data_structs,anho, pais, propiedad):
     print(anho, pais, propiedad )
     tupla = mp.get(data_structs["req7"], pais) #retorna el arbol del pais elegido
     arbol_pais_elegido = me.getValue(tupla)
-    #print(arbol_pais_elegido) ##NONE
 
     num_anhos = om.size(arbol_pais_elegido)
     print(num_anhos)
@@ -742,17 +741,10 @@ def req_7(data_structs,anho, pais, propiedad):
     #Array list con ofertas segun anho y pais
     nodo = om.get(arbol_pais_elegido, anio)
     lista_ofertas = nodoRBT.getValue(nodo)
-    print(lt.size(lista_ofertas))
     print(lista_ofertas)
 
 
-    
-    
-
-
     dicc = {}
-    contador = 0
-    final = []
     if propiedad == "experticia":
         dicc["senior"] = 0
         dicc["mid"] = 0
@@ -768,7 +760,6 @@ def req_7(data_structs,anho, pais, propiedad):
             elif xp == "junior":
                 dicc["junior"] +=1
 
-        #print (final)
 
 
     elif propiedad == "ubicacion":
@@ -777,7 +768,6 @@ def req_7(data_structs,anho, pais, propiedad):
         for i in lt.iterator(lista_ofertas):
             
             ciudad = i["city"]
-            #print(ciudad)
             if ciudad in filtro_ciudades:
                 bas.append(ciudad)
             else:
@@ -785,12 +775,11 @@ def req_7(data_structs,anho, pais, propiedad):
         print(filtro_ciudades)
 
         for ciudad in filtro_ciudades:
-            dicc[ciudad] = 0 #aqui es cero
+            dicc[ciudad] = 0
 
 
         for i in lt.iterator(lista_ofertas):
             city = i["city"]
-            #print(city)
 
             if city in dicc:
                 dicc[city] += 1
@@ -804,7 +793,7 @@ def req_7(data_structs,anho, pais, propiedad):
         for i in lt.iterator(lista_ofertas):
             lista_basura = []
             lista_ides = []
-            #idd = i["id"]
+
             if i["id"] not in lista_ides:
                 lista_ides.append(i["id"])
             else:
@@ -816,15 +805,13 @@ def req_7(data_structs,anho, pais, propiedad):
             for id in lista_ides:
                 #filtro mapa skills
                 map_skills = data_structs["skills"]
-                #print(map_skills)
+
 
                 value = me.getValue(mp.get(map_skills,id))
                 print(value)
 
                 tupla = mp.get(map_skills, id)
-                #print (tupla)
                 prop = me.getValue(tupla) #Lista TAD con todos los datos de 1 ID
-                #print (prop)
 
 
                 num_ofertas = lt.size(prop)
@@ -836,14 +823,13 @@ def req_7(data_structs,anho, pais, propiedad):
                     dicc[id] = num_ofertas
 
 
-                
+
+    mapa = req_8(lista_ofertas)    
 
 
-    ofertas_anho = lt.size(lista_ofertas) #CAMBIAR
-    ofertas_grafico = final
+    ofertas_anho = lista_ofertas #CAMBIAR
 
-    return dicc, ofertas_anho, ofertas_grafico
-    pass
+    return dicc, ofertas_anho
 
 
 def req_8(data_structs, mapa, nom_estru, parent_loc=None):

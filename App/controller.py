@@ -173,8 +173,8 @@ def req_7(control,anho, pais, propiedad):
     Retorna el resultado del requerimiento 7
     """
     # TODO: Modificar el requerimiento 7
-    dicc, ofertas_anho, ofertas_grafico = model.req_7(control, anho, pais, propiedad)
-    return dicc, ofertas_anho, ofertas_grafico
+    dicc, ofertas_anho = model.req_7(control, anho, pais, propiedad)
+    return dicc, ofertas_anho
 
 
 def req_8(control, nom_estru):
