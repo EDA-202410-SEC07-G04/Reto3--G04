@@ -41,7 +41,7 @@ from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 from datetime import datetime as dt
-import folium
+#import folium
 import webbrowser
 assert cf
 import sys
@@ -792,7 +792,7 @@ def req_7(data_structs,anho, pais, propiedad):
     #Array list con ofertas segun anho y pais
     nodo = om.get(arbol_pais_elegido, anio)
     lista_ofertas = nodoRBT.getValue(nodo)
-    print(lista_ofertas)
+    #print(lista_ofertas)
 
 
     dicc = {}

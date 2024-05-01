@@ -299,7 +299,7 @@ def print_req_7(control):
     propiedad = str(input("Que propiedad de conteo le interesa: "))
 
     dicc, ofertas_anho = controller.req_7(control, anho, pais, propiedad)
-    print(dicc)
+    #print(dicc)
     #print(dicc.values())
 
     valores = dicc.values()
@@ -319,28 +319,25 @@ def print_req_7(control):
         job = ofertas_anho[0]
         print("Las", size, "ciudades ordenadas por cantidad de ofertas son: ")
         print("            ")
-        print('ciudad: ' + job["ciudad"] + ' Pais: ' + job['pais'] +  ' Ofertas en la ciudad: ' + str(job['total_ofertas']) +
-            " salario promedio: " + str(job["salario_promedio"]) + ' empresas con al menos una oferta: ' + str(job['cant_empresas']) + 
-            ' empresa con mas ofertas en esa ciudad: ' + job['empresa_mas_ofertas'] + ' conteo: ' + str(job['cantidad_ofertas_empresa_mas']) + 
-            ' mejor oferta en la ciudad: ' + str(job['mejor_oferta']) + ' peor oferta en la ciudad: ' + str(job['peor_oferta']))
+        print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+            ' Nombre empresa: ' + job['company_name'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+            job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' propiedad_conteo: ' + str(propiedad) )
     elif size <= sample*2:
         print("Las", size, "ciudades ordenadas por cantidad de ofertas son: ")
         for job in lt.iterator(ofertas_anho):
             print("            ")
-            print('ciudad: ' + job["ciudad"] + ' Pais: ' + job['pais'] +  ' Ofertas en la ciudad: ' + str(job['total_ofertas']) +
-            " salario promedio: " + str(job["salario_promedio"]) + ' empresas con al menos una oferta: ' + str(job['cant_empresas']) + 
-            ' empresa con mas ofertas en esa ciudad: ' + job['empresa_mas_ofertas'] + ' conteo: ' + str(job['cantidad_ofertas_empresa_mas']) + 
-            ' mejor oferta en la ciudad: ' + str(job['mejor_oferta']) + ' peor oferta en la ciudad: ' + str(job['peor_oferta']))
+            print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+            ' Nombre empresa: ' + job['company_name'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+            job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' propiedad_conteo: ' + str(propiedad) )
     else:
         print("Las", sample, "ciudades ordenadas por cantidad de ofertas son: ")
         i = 1
         while i <= sample:
             job = ofertas_anho[i]
             print("            ")
-            print('ciudad: ' + job["ciudad"] + ' Pais: ' + job['pais'] +  ' Ofertas en la ciudad: ' + str(job['total_ofertas']) +
-            " salario promedio: " + str(job["salario_promedio"]) + ' empresas con al menos una oferta: ' + str(job['cant_empresas']) + 
-            ' empresa con mas ofertas en esa ciudad: ' + job['empresa_mas_ofertas'] + ' conteo: ' + str(job['cantidad_ofertas_empresa_mas']) + 
-            ' mejor oferta en la ciudad: ' + str(job['mejor_oferta']) + ' peor oferta en la ciudad: ' + str(job['peor_oferta']))
+            print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+            ' Nombre empresa: ' + job['company_name'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+            job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' propiedad_conteo: ' + str(propiedad) )
             i += 1
 
     propiedades = list(dicc.keys())
@@ -349,7 +346,7 @@ def print_req_7(control):
     # Agregar etiquetas y título
     plt.xlabel('Propiedad')
     plt.ylabel('Número de Ofertas Laborales')
-    plt.title('Distribución de Ofertas Laborales por Propiedad')
+    plt.title('Distribución de Ofertas Laborales por' + str(propiedad))
     plt.xticks(rotation=45, ha='right')
     plt.show()
 
