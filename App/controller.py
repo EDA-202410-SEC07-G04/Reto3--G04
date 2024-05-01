@@ -51,10 +51,12 @@ def load_data(control):
     load_jobs(control)
     load_types(control)
     load_habilidades(control)
+    load_map_skills(control)
     end_time = get_time()
     deltaTime = delta_time(start_time, end_time)
     DeltaTime = f"{deltaTime:.3f}"
     print("Para este req el tiempo es:", str(DeltaTime), "[ms]")
+    
 
 def load_jobs(control):
     jobsfile = cf.data_dir + 'large-jobs.csv'
@@ -76,6 +78,19 @@ def load_habilidades(control):
     for job in input_file:
         model.add_job3(control, job)
     return control
+
+def load_map_skills(control):
+    jobsfile = cf.data_dir + 'large-skills.csv'
+    input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
+    for job in input_file:
+        model.add_skill(control, job)
+    return control
+
+#tabulate
+def get_jobs_sublist (control):
+    sublist1, sublist2 = model.get_jobs_sublist(control)
+    return sublist1, sublist2
+
 
 # Funciones de ordenamiento
 
@@ -171,12 +186,13 @@ def req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     return r1, r2, r3, r4, deltaTime
 
 
-def req_7(control):
+def req_7(control,anho, pais, propiedad):
     """
     Retorna el resultado del requerimiento 7
     """
     # TODO: Modificar el requerimiento 7
-    pass
+    dicc, ofertas_anho = model.req_7(control, anho, pais, propiedad)
+    return dicc, ofertas_anho
 
 
 def req_8(control, nom_estru):
