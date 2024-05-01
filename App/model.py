@@ -40,7 +40,8 @@ from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 from datetime import datetime as dt
-#import folium
+import folium
+import webbrowser
 assert cf
 
 """
@@ -79,19 +80,21 @@ def new_data_structs():
                                   maptype='CHAINING',
                                   loadfactor=4)
 
-    catalog["countries"] = om.newMap(omaptype="BST",
+    catalog["countries"] = om.newMap(omaptype="RBT",
                                       cmpfunction=compareXp2)
 
-    catalog["dates"] = om.newMap(omaptype="BST",
+    catalog["dates"] = om.newMap(omaptype="RBT",
                                       cmpfunction=compareNames)
     #workplace_type
-    catalog["cities"] = om.newMap(omaptype="BST",
+    catalog["cities"] = om.newMap(omaptype="RBT",
                                       cmpfunction=compareUbi)
 
-    catalog["types"] = om.newMap(omaptype="BST",
+    catalog["types"] = om.newMap(omaptype="RBT",
                                       cmpfunction=compareUbi)
 
     catalog["habilidades"] = lt.newList("ARRAY_LIST")
+
+    catalog["salarios"] = lt.newList("ARRAY_LIST")
 
 
 
@@ -119,6 +122,7 @@ def add_job2(data_structs, data):
     """
     #TODO: Crear la función para agregar elementos a una lista
     updateTypes(data_structs["types"], data)
+    lt.addLast(data_structs["salarios"], data)
 
     return data_structs
 
@@ -463,6 +467,11 @@ def req_1(data_structs, fecha_inicial, fecha_final):
         ofertas_rango_de_tiempo += lt.size(i["lstjobs"])
         for x in lt.iterator(i["lstjobs"]):
             lt.addFirst(final, x)
+
+    final = fix(final)
+    final = finalizar_breve(final, data_structs["habilidades"])
+
+    mapa = req_8(final)
     
     return ofertas_rango_de_tiempo, final
 
@@ -481,16 +490,26 @@ def req_3(data_structs, num_ofertas, pais, xp):
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    final = lt.newList("ARRAY_LIST")
+    finali = lt.newList("ARRAY_LIST")
     pai = om.get(data_structs["countries"], str(pais))
     #print(pai)
     if pai["key"] is not None:
         mapa = me.getValue(pai)["name"]
-        fifa = mp.get(mapa, xp)
-        if fifa is not None:
-            var1 = me.getValue(fifa)["lstjobs"]
-            for i in lt.iterator(var1):
-                lt.addLast(final, i)
+        if xp == "indiferente":
+            fifa = mp.valueSet(mapa)
+            for i in lt.iterator(fifa):
+                for x in lt.iterator(i["lstjobs"]):
+                    lt.addLast(finali, x)
+        else:
+            fifa = mp.get(mapa, xp)
+            if fifa is not None:
+                var1 = me.getValue(fifa)["lstjobs"]
+                for i in lt.iterator(var1):
+                    lt.addLast(finali, i)
+
+    final = fix(finali)
+    final = finalizar(final, data_structs["salarios"], data_structs["habilidades"])
+
 
     if lt.size(final) >= 2:
         sortiao = merg.sort(final, sort_r3)
@@ -506,6 +525,8 @@ def req_3(data_structs, num_ofertas, pais, xp):
         num_ofertas = num_ofertas 
     
     sublista = lt.subList(sortiao, 1, num_ofertas)
+    mapa = req_8(final)
+
 
     return sublista
 
@@ -528,6 +549,9 @@ def req_4(data_structs, num_ofertas, ciudad, ubi):
             for i in lt.iterator(var1):
                 lt.addLast(final, i)
 
+    final = fix(final)
+    final = finalizar(final, data_structs["salarios"], data_structs["habilidades"])
+
     if lt.size(final) >= 2:
         sortiao = merg.sort(final, sort_r3)
     elif lt.size(final) <= 1:
@@ -536,12 +560,17 @@ def req_4(data_structs, num_ofertas, ciudad, ubi):
         print("Ningun resultado encontrado")
         sys.exit(0)
 
+
     if num_ofertas > lt.size(sortiao):
         num_ofertas = lt.size(sortiao)
     elif num_ofertas <= lt.size(sortiao):
         num_ofertas = num_ofertas 
     
+
+
     sublista = lt.subList(sortiao, 1, num_ofertas)
+
+    mapa = req_8(final)
 
     return sublista
     
@@ -562,11 +591,8 @@ def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     # TODO: Realizar el requerimiento 6
     final = lt.newList("ARRAY_LIST")
     lst = om.values(data_structs["dates"], fecha_inicial, fecha_final)
-    ofertas_rango_de_tiempo = 0
     for i in lt.iterator(lst):
-        ofertas_rango_de_tiempo += lt.size(i["lstjobs"])
         for x in lt.iterator(i["lstjobs"]):
-            ide = x["id"]
             lt.addFirst(final, x)
 
     final2 = lt.newList("ARRAY_LIST")
@@ -575,8 +601,12 @@ def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
         for x in lt.iterator(i["lstjobs"]):
             lt.addFirst(final2, x)
 
-    
-    e1 = req63(final)
+    final = fix(final)
+    final2 = fix(final2)
+
+    f1 = req65(final, final2)
+    #print(f1)
+    e1 = req63(f1)
     r2 = lt.size(e1)
     sortiao = lt.newList("ARRAY_LIST")
     if lt.size(e1) >= 2:
@@ -593,7 +623,8 @@ def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
         num_ofertas = n_ciu 
     
     r3 = lt.subList(sortiao, 1, num_ofertas)
-    repe = req61(final)
+    repe = req61(f1)
+    print(repe)
     var1 = req62(final, final2, repe, data_structs["habilidades"])
     r4 = lt.newList("ARRAY_LIST")
     if lt.size(var1) >= 2:
@@ -604,7 +635,9 @@ def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
         print("Ningun resultado encontrado")
         sys.exit(0)
 
-    r1 = lt.size(final2)
+    r1 = req64(final, final2)
+    
+    mapa = req_8(r4)
     
     return r1, r2, r3, r4
 
@@ -621,12 +654,12 @@ def req61(lt1):
 def req62(lt1, lt2, repe, lt3):
     ofertas_ciudad = lt.newList("ARRAY_LIST")
     for i in lt.iterator(lt1):
-        if i['city'] == repe:
+        if i['city'].lower() == repe.lower():
             lt.addLast(ofertas_ciudad, i)
 
     salmin_por_id = {}
     for q in lt.iterator(lt2):
-        salmin_por_id[q['id']] = q['salary_to']
+        salmin_por_id[q['id']] = q['salary_from']
 
     habi_por_id = {}
     for k in lt.iterator(lt3):
@@ -641,12 +674,10 @@ def req62(lt1, lt2, repe, lt3):
     for of in lt.iterator(ofertas_ciudad):
         habilidad = habi_por_id.get(of['id'], [])
         salario_min = salmin_por_id.get(of['id'], None)
-        """
         if salario_min == "" or salario_min == " " or salario_min == None:
             salario_min = int(0)
         else:
             salario_min = int(salario_min)
-        """
 
         if salario_min is not None:
             lt.addLast(finalissima,{
@@ -660,7 +691,9 @@ def req62(lt1, lt2, repe, lt3):
                 "workplace_type": of["workplace_type"],
                 'oferta_minima': int(salario_min),
                 "habilidad": habilidad,
-                "id": of["id"]
+                "id": str(of["id"]),
+                "longitude": of["longitude"],
+                "latitude": of["latitude"]
             })
 
 
@@ -678,6 +711,24 @@ def req63(lst):
     
     return cr7
 
+def req64(lt1, lt2):
+    ids1 = {elemento['id'] for elemento in lt.iterator(lt1)}
+    ids2 = {elemento['id'] for elemento in lt.iterator(lt2)}
+
+    elementos_comunes = ids1.intersection(ids2)
+    
+    # Devolver la cantidad de elementos comunes
+    return len(elementos_comunes)
+
+def req65(lt1, lt2):
+    ids2 = {elemento['id'] for elemento in lt.iterator(lt2)}
+
+    comu = lt.newList("ARRAY_LIST")
+    for i in lt.iterator(lt1):
+        if i["id"] in ids2:
+            lt.addLast(comu, i)
+
+    return comu
 
 def req_7(data_structs):
     """
@@ -687,27 +738,110 @@ def req_7(data_structs):
     pass
 
 
-def req_8(data_structs, mapa, nom_estru, parent_loc=None):
+def req_8(lst):
     """
     Función que soluciona el requerimiento 8
     """
     # TODO: Realizar el requerimiento 8
-    root = om.minKey(data_structs[nom_estru])
-    if root is not None:
-        info = root["lstjobs"]
-        for i in lt.iterator(info):
-            longi = i["longitude"]
-            lati= i["latitude"]
+    mapa = folium.Map(location=[0,0], zoom_start=2)
+
+    for i in lt.iterator(lst):
+        longi = i["longitude"]
+        lati= i["latitude"]
 
         loca = (lati, longi)
-        folium.Marker(location=loca, popup=str(info).add_to(mapa))
+        folium.Marker(location=loca, 
+                        popup=f"<b>{i['title']}</b><br>Ciudad: {i['city']}").add_to(mapa)
 
-        if parent_loc is not None:
-            folium.Polyline(locations=[parent_loc, loca], color="blue").add_to(mapa)
-
-        hijos = 32
+    mapa.save("mapa.html")
+    webbrowser.open("mapa.html")
 
 
+def fix(lst):
+    ide_vi = set()
+
+    unicos = lt.newList("ARRAY_LIST")
+
+    for i in lt.iterator(lst):
+        id_uni = i["id"]
+        if id_uni not in ide_vi:
+            lt.addLast(unicos, i)
+            ide_vi.add(id_uni)
+
+    return unicos
+
+def finalizar(lst, salarios, habilidades):
+
+    salmin_por_id = {}
+    for q in lt.iterator(salarios):
+        salmin_por_id[q['id']] = q['salary_from']
+
+    habi_por_id = {}
+    for k in lt.iterator(habilidades):
+        id_oferta = k["id"]
+        if id_oferta not in habi_por_id:
+            habi_por_id[id_oferta] = []
+        habi_por_id[id_oferta].append(k["name"])
+
+    finalissima = lt.newList("ARRAY_LIST")
+    for of in lt.iterator(lst):
+        habilidad = habi_por_id.get(of['id'], [])
+        salario_min = salmin_por_id.get(of['id'], None)
+        if salario_min == "" or salario_min == " " or salario_min == None:
+            salario_min = int(0)
+        else:
+            salario_min = int(salario_min)
+
+        if salario_min is not None:
+            lt.addLast(finalissima,{
+                "published_at": of["published_at"],
+                "title": of["title"],
+                'company_name': of["company_name"],
+                "experience_level": of["experience_level"],
+                'country_code': of["country_code"],
+                "city": of["city"],
+                "company_size": of["company_size"],
+                "workplace_type": of["workplace_type"],
+                'oferta_minima': int(salario_min),
+                "skills": habilidad,
+                "id": str(of["id"]),
+                "longitude": of["longitude"],
+                "latitude": of["latitude"]
+            })
+
+
+    return finalissima
+
+def finalizar_breve(lst, habilidades):
+    habi_por_id = {}
+    for k in lt.iterator(habilidades):
+        id_oferta = k["id"]
+        if id_oferta not in habi_por_id:
+            habi_por_id[id_oferta] = []
+        habi_por_id[id_oferta].append(k["name"])
+
+    finalissima = lt.newList("ARRAY_LIST")
+    for of in lt.iterator(lst):
+        habilidad = habi_por_id.get(of['id'], [])
+        if habilidad is not None:
+            lt.addLast(finalissima,{
+                "published_at": of["published_at"],
+                "title": of["title"],
+                'company_name': of["company_name"],
+                "experience_level": of["experience_level"],
+                'country_code': of["country_code"],
+                "city": of["city"],
+                "company_size": of["company_size"],
+                "workplace_type": of["workplace_type"],
+                "skills": habilidad,
+                "id": str(of["id"]),
+                "longitude": of["longitude"],
+                "latitude": of["latitude"]
+            })
+
+
+    return finalissima
+        
 
 
 # Funciones utilizadas para comparar elementos dentro de una lista
@@ -846,7 +980,7 @@ def sort_r6(oferta1, oferta2):
 def sort_alfa(oferta1, oferta2):
     date1 = oferta1
     date2 = oferta2
-    if date1 > date2:
+    if date1 < date2:
         return True
     else:
         return False
