@@ -32,6 +32,8 @@ from DISClib.DataStructures import mapentry as me
 assert cf
 #from tabulate import tabulate
 import traceback
+from tabulate import tabulate
+from matplotlib import pyplot as plt
 
 """
 La vista se encarga de la interacción con el usuario
@@ -79,6 +81,11 @@ def load_data(control):
     print(mbappe)
     print(messi)
     #print(haaland)
+
+    lista = controller.get_jobs_sublist(control)
+    print(lista)
+    print(tabulate(list(lt.iterator(lista[0]))+list(lt.iterator(lista[1])), headers="keys", tablefmt="grid"))
+
 
 def print_data(control, id):
     """
@@ -287,7 +294,61 @@ def print_req_7(control):
         Función que imprime la solución del Requerimiento 7 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 7
-    pass
+    pais = (str(input("Cuál es el país de su interes ")))
+    anho = str(input("Digame el año que le interesa(XXXX): "))
+    propiedad = str(input("Que propiedad de conteo le interesa: "))
+
+    dicc, ofertas_anho = controller.req_7(control, anho, pais, propiedad)
+    #print(dicc)
+    #print(dicc.values())
+
+    valores = dicc.values()
+    minimo = min(valores)
+    maxi = max(valores)
+
+    print("            ")
+    print("Numero total de ofertas que cumplen con las condiciones (año): " + str(len(ofertas_anho)))
+    print("Numero de ofertas utlizadas en el gráfico: " + str(len(ofertas_anho)))
+    print("El valor minimo es: " + str(minimo))
+    print("El valor maximo es: " + str(maxi))
+
+
+    size = lt.size(ofertas_anho)    
+    sample = size
+    if size == 1:
+        job = ofertas_anho[0]
+        print("Las", size, "ciudades ordenadas por cantidad de ofertas son: ")
+        print("            ")
+        print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+            ' Nombre empresa: ' + job['company_name'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+            job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' propiedad_conteo: ' + str(propiedad) )
+    elif size <= sample*2:
+        print("Las", size, "ciudades ordenadas por cantidad de ofertas son: ")
+        for job in lt.iterator(ofertas_anho):
+            print("            ")
+            print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+            ' Nombre empresa: ' + job['company_name'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+            job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' propiedad_conteo: ' + str(propiedad) )
+    else:
+        print("Las", sample, "ciudades ordenadas por cantidad de ofertas son: ")
+        i = 1
+        while i <= sample:
+            job = ofertas_anho[i]
+            print("            ")
+            print('Fecha de publicacion: ' + job["published_at"] + ' Titulo: ' + job['title'] +  
+            ' Nombre empresa: ' + job['company_name'] + " Pais: " + job["country_code"] + ' Ciudad: ' + 
+            job['city'] + " Tamaño de la empresa: " + job["company_size"] + ' propiedad_conteo: ' + str(propiedad) )
+            i += 1
+
+    propiedades = list(dicc.keys())
+    conteo = list(dicc.values())
+    plt.bar(propiedades, conteo, color='skyblue')
+    # Agregar etiquetas y título
+    plt.xlabel('Propiedad')
+    plt.ylabel('Número de Ofertas Laborales')
+    plt.title('Distribución de Ofertas Laborales por' + str(propiedad))
+    plt.xticks(rotation=45, ha='right')
+    plt.show()
 
 
 def print_req_8(control):
