@@ -47,9 +47,14 @@ def load_data(control):
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
+    start_time = get_time()
     load_jobs(control)
     load_types(control)
     load_habilidades(control)
+    end_time = get_time()
+    deltaTime = delta_time(start_time, end_time)
+    DeltaTime = f"{deltaTime:.3f}"
+    print("Para este req el tiempo es:", str(DeltaTime), "[ms]")
 
 def load_jobs(control):
     jobsfile = cf.data_dir + 'large-jobs.csv'
@@ -108,8 +113,11 @@ def req_1(control, fecha_inicial, fecha_final):
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
+    start_time = get_time()
     ofertas_rango_de_tiempo, final = model.req_1(control, fecha_inicial, fecha_final)
-    return ofertas_rango_de_tiempo, final
+    end_time = get_time()
+    deltaTime = delta_time(start_time, end_time)
+    return ofertas_rango_de_tiempo, final, deltaTime
 
 
 def req_2(control):
@@ -125,8 +133,11 @@ def req_3(control, n_ofertas, pais, xp):
     Retorna el resultado del requerimiento 3
     """
     # TODO: Modificar el requerimiento 3
+    start_time = get_time()
     final = model.req_3(control, n_ofertas, pais, xp)
-    return final
+    end_time = get_time()
+    deltaTime = delta_time(start_time, end_time)
+    return final, deltaTime
 
 
 def req_4(control, num_ofertas, ciudad, ubi):
@@ -134,8 +145,11 @@ def req_4(control, num_ofertas, ciudad, ubi):
     Retorna el resultado del requerimiento 4
     """
     # TODO: Modificar el requerimiento 4
+    start_time = get_time()
     final = model.req_4(control, num_ofertas, ciudad, ubi)
-    return final
+    end_time = get_time()
+    deltaTime = delta_time(start_time, end_time)
+    return final, deltaTime
 
 
 def req_5(control):
@@ -150,8 +164,11 @@ def req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
+    start_time = get_time()
     r1, r2, r3, r4 = model.req_6(control, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max)
-    return r1, r2, r3, r4
+    end_time = get_time()
+    deltaTime = delta_time(start_time, end_time)
+    return r1, r2, r3, r4, deltaTime
 
 
 def req_7(control):
@@ -167,8 +184,7 @@ def req_8(control, nom_estru):
     Retorna el resultado del requerimiento 8
     """
     # TODO: Modificar el requerimiento 8
-    mapa = folium.Map(location=[0,0], zoom_start=5)
-    final = model.req_8(control, mapa, nom_estru)
+    
 
 
 # Funciones para medir tiempos de ejecucion
