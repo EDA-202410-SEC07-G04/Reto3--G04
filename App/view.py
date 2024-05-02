@@ -30,7 +30,7 @@ from DISClib.ADT import map as mp
 from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 assert cf
-#from tabulate import tabulate
+from tabulate import tabulate
 import traceback
 from tabulate import tabulate
 from matplotlib import pyplot as plt

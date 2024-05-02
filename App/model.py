@@ -41,10 +41,11 @@ from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 from datetime import datetime as dt
-#import folium
+import folium
 import webbrowser
 assert cf
 import sys
+import time
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
@@ -568,7 +569,7 @@ def req_3(data_structs, num_ofertas, pais, xp):
     sublista = lt.subList(sortiao, 1, num_ofertas)
     mapa = req_8(final)
 
-
+    print(mapa)
     return sublista
 
     
@@ -665,7 +666,6 @@ def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     
     r3 = lt.subList(sortiao, 1, num_ofertas)
     repe = req61(f1)
-    print(repe)
     var1 = req62(final, final2, repe, data_structs["habilidades"])
     r4 = lt.newList("ARRAY_LIST")
     if lt.size(var1) >= 2:
@@ -888,6 +888,7 @@ def req_8(lst):
     Función que soluciona el requerimiento 8
     """
     # TODO: Realizar el requerimiento 8
+    start_time = get_time()
     mapa = folium.Map(location=[0,0], zoom_start=2)
 
     for i in lt.iterator(lst):
@@ -900,7 +901,23 @@ def req_8(lst):
 
     mapa.save("mapa.html")
     webbrowser.open("mapa.html")
+    end_time = get_time()
+    deltaTime = delta_time(start_time, end_time)
+    return deltaTime
 
+def get_time():
+    """
+    devuelve el instante tiempo de procesamiento en milisegundos
+    """
+    return float(time.perf_counter()*1000)
+
+
+def delta_time(start, end):
+    """
+    devuelve la diferencia entre tiempos de procesamiento muestreados
+    """
+    elapsed = float(end - start)
+    return elapsed
 
 def fix(lst):
     ide_vi = set()
@@ -987,7 +1004,7 @@ def finalizar_breve(lst, habilidades):
 
     return finalissima
         
-
+#
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 

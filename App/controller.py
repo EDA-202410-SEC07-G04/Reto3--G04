@@ -50,7 +50,6 @@ def load_data(control):
     start_time = get_time()
     load_jobs(control)
     load_types(control)
-    load_habilidades(control)
     load_map_skills(control)
     end_time = get_time()
     deltaTime = delta_time(start_time, end_time)
@@ -59,6 +58,7 @@ def load_data(control):
     
 
 def load_jobs(control):
+    #'10-por-jobs.csv' 'large-jobs.csv'
     jobsfile = cf.data_dir + 'large-jobs.csv'
     input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
     for job in input_file:
@@ -66,24 +66,20 @@ def load_jobs(control):
     return control
 
 def load_types(control):
+    #'large-employments_types.csv' '10-por-employments_types.csv'
     jobsfile = cf.data_dir + 'large-employments_types.csv'
     input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
     for job in input_file:
         model.add_job2(control, job)
     return control
 
-def load_habilidades(control):
-    jobsfile = cf.data_dir + 'large-skills.csv'
-    input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
-    for job in input_file:
-        model.add_job3(control, job)
-    return control
-
 def load_map_skills(control):
+    #'large-skills.csv' '10-por-skills.csv'
     jobsfile = cf.data_dir + 'large-skills.csv'
     input_file = csv.DictReader(open(jobsfile, encoding='utf-8'), delimiter=';')
     for job in input_file:
         model.add_skill(control, job)
+        model.add_job3(control, job)
     return control
 
 #tabulate
