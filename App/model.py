@@ -41,10 +41,11 @@ from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 from datetime import datetime as dt
-#import folium
+import folium
 import webbrowser
 assert cf
 import sys
+import time
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
@@ -665,7 +666,6 @@ def req_6(data_structs, n_ciu, fecha_inicial, fecha_final, sal_min, sal_max):
     
     r3 = lt.subList(sortiao, 1, num_ofertas)
     repe = req61(f1)
-    print(repe)
     var1 = req62(final, final2, repe, data_structs["habilidades"])
     r4 = lt.newList("ARRAY_LIST")
     if lt.size(var1) >= 2:
